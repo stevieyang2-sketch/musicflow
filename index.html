@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="MusicFlow">
+<title>MusicFlow</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{--bg:#F7F4EF;--surface:#FFFFFF;--surface2:#F2EFE9;--accent:#5C3FA3;--accent-light:#EDE9FC;--orange:#E8572A;--orange-light:#FDE9E2;--green:#1D9E75;--green-light:#E1F5EE;--blue:#185FA5;--blue-light:#E6F1FB;--text:#1A1612;--text2:#6B6560;--text3:#A09890;--border:#E5E0D8;--r:18px;--rs:12px;}
+html,body{height:100%;background:var(--bg);font-family:'Nunito',sans-serif;color:var(--text);overflow:hidden;}
+.app{max-width:430px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;background:var(--bg);}
+.status-bar{display:flex;justify-content:space-between;align-items:center;padding:env(safe-area-inset-top,12px) 24px 4px;font-size:12px;font-weight:700;background:var(--bg);min-height:44px;flex-shrink:0;}
+.main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+.screen{display:none;}.screen.active{display:block;animation:fadeIn 0.2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.pad{padding-bottom:calc(80px + env(safe-area-inset-bottom,0px));}
+.nav-bar{display:flex;justify-content:space-around;align-items:center;background:var(--surface);padding:8px 0;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));border-top:0.5px solid var(--border);flex-shrink:0;}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:700;color:var(--text3);cursor:pointer;padding:4px 18px;transition:color 0.15s;}
+.nav-item.active{color:var(--accent);}.nav-item i{font-size:22px;}
+.header{padding:8px 20px 14px;display:flex;justify-content:space-between;align-items:center;}
+.header-title{font-size:26px;font-weight:800;}.header-sub{font-size:13px;color:var(--text2);margin-top:1px;}
+.btn-icon{width:40px;height:40px;border-radius:50%;background:var(--surface);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.search-bar{margin:0 20px 14px;background:var(--surface);border-radius:var(--rs);border:0.5px solid var(--border);display:flex;align-items:center;gap:10px;padding:11px 14px;}
+.search-bar input{border:none;background:transparent;font-family:'Nunito',sans-serif;font-size:14px;color:var(--text);outline:none;flex:1;}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:0 20px 18px;}
+.stats-row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 20px 18px;}
+.stat-card{background:var(--surface);border-radius:var(--r);padding:14px 10px;border:0.5px solid var(--border);text-align:center;}
+.stat-card .num{font-size:22px;font-weight:800;}.stat-card .lbl{font-size:11px;color:var(--text2);font-weight:600;margin-top:2px;}
+.s1 .num{color:var(--accent);}.s2 .num{color:var(--orange);}.s3 .num{color:var(--green);}
+.tabs{display:flex;gap:6px;margin:0 20px 14px;overflow-x:auto;padding-bottom:2px;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex-shrink:0;padding:7px 16px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;border:0.5px solid var(--border);background:var(--surface);color:var(--text2);}
+.tab.active{background:var(--accent);color:white;border-color:var(--accent);}
+.slabel{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.8px;margin:0 20px 10px;}
+.student-card{background:var(--surface);border-radius:var(--r);padding:14px 16px;margin:0 20px 10px;border:0.5px solid var(--border);display:flex;align-items:center;gap:14px;cursor:pointer;transition:transform 0.1s,opacity 0.1s;}
+.student-card:active{transform:scale(0.97);opacity:0.85;}
+.avatar{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0;}
+.av0{background:#EDE9FC;color:#5C3FA3;}.av1{background:#FDE9E2;color:#C04A1E;}.av2{background:#E1F5EE;color:#0F6E56;}.av3{background:#E6F1FB;color:#185FA5;}.av4{background:#FAEEDA;color:#854F0B;}.av5{background:#FBEAF0;color:#993556;}
+.student-info{flex:1;min-width:0;}.student-name{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}.student-meta{font-size:12px;color:var(--text2);margin-top:2px;}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;margin-top:4px;}
+.bp{background:var(--accent-light);color:var(--accent);}.bo{background:var(--orange-light);color:var(--orange);}.bg{background:var(--green-light);color:var(--green);}.bb{background:var(--blue-light);color:var(--blue);}.br{background:#FCEBEB;color:#A32D2D;}
+.det-header{background:linear-gradient(135deg,#5C3FA3,#8B5CF6);padding:16px 20px 20px;border-radius:0 0 28px 28px;color:white;margin-bottom:16px;}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:rgba(255,255,255,0.85);cursor:pointer;margin-bottom:14px;}
+.det-avatar{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:white;margin-bottom:10px;}
+.det-name{font-size:22px;font-weight:800;}.det-sub{font-size:13px;opacity:0.8;margin-top:3px;}
+.chips{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}.chip{background:rgba(255,255,255,0.22);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;}
+.info-card{background:var(--surface);border-radius:var(--r);padding:4px 16px;margin:0 20px 12px;border:0.5px solid var(--border);}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:0.5px solid var(--border);}
+.info-row:last-child{border-bottom:none;}
+.info-label{font-size:13px;color:var(--text2);font-weight:600;display:flex;align-items:center;gap:6px;}
+.info-value{font-size:13px;font-weight:700;color:var(--text);text-align:right;max-width:60%;}
+.prog-row{margin-bottom:12px;}.prog-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);font-weight:600;margin-bottom:5px;}
+.prog-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}.prog-fill{height:100%;border-radius:3px;}
+.fp{background:var(--accent);}.fo{background:var(--orange);}.fg{background:var(--green);}.fb{background:var(--blue);}
+.lesson-item{background:var(--surface);border-radius:var(--rs);padding:12px 14px;margin:0 20px 8px;border:0.5px solid var(--border);display:flex;align-items:center;gap:12px;}
+.ldot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}.ld{background:var(--green);}.lu{background:var(--accent);}.lm{background:var(--orange);}
+.week-row{display:flex;gap:8px;margin:0 20px 16px;overflow-x:auto;padding-bottom:2px;}.week-row::-webkit-scrollbar{display:none;}
+.day-btn{flex-shrink:0;width:46px;height:58px;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;border:0.5px solid var(--border);background:var(--surface);}
+.day-btn.today{background:var(--accent);border-color:var(--accent);}
+.day-name{font-size:10px;font-weight:600;color:var(--text2);}.day-num{font-size:16px;font-weight:800;color:var(--text);}
+.day-btn.today .day-name,.day-btn.today .day-num{color:white;}
+.slot{background:var(--surface);border-radius:var(--r);padding:14px 16px;margin:0 20px 10px;border:0.5px solid var(--border);border-left:4px solid var(--accent);display:flex;gap:14px;align-items:center;cursor:pointer;transition:transform 0.1s;}
+.slot:active{transform:scale(0.97);}
+.slot-time{font-size:12px;font-weight:700;color:var(--accent);min-width:38px;}
+.slot-info{flex:1;}.slot-name{font-size:14px;font-weight:700;}.slot-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+.so{border-left-color:var(--orange);}.so .slot-time{color:var(--orange);}.sg{border-left-color:var(--green);}.sg .slot-time{color:var(--green);}.sb{border-left-color:var(--blue);}.sb .slot-time{color:var(--blue);}
+.settings-section{margin:0 20px 20px;}.settings-title{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;}
+.settings-card{background:var(--surface);border-radius:var(--r);border:0.5px solid var(--border);overflow:hidden;}
+.settings-row{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background 0.1s;}
+.settings-row:active{background:var(--surface2);}.settings-row:last-child{border-bottom:none;}
+.si{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.si-p{background:var(--accent-light);color:var(--accent);}.si-o{background:var(--orange-light);color:var(--orange);}.si-g{background:var(--green-light);color:var(--green);}.si-b{background:var(--blue-light);color:var(--blue);}.si-r{background:#FCEBEB;color:#A32D2D;}.si-gray{background:var(--surface2);color:var(--text2);}
+.settings-text{flex:1;}.settings-name{font-size:15px;font-weight:700;}.settings-desc{font-size:12px;color:var(--text2);margin-top:2px;}
+.profile-card{margin:0 20px 20px;background:linear-gradient(135deg,#5C3FA3,#8B5CF6);border-radius:var(--r);padding:20px;color:white;display:flex;align-items:center;gap:16px;cursor:pointer;}
+.profile-avatar{width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;flex-shrink:0;}
+.profile-name{font-size:18px;font-weight:800;}.profile-sub{font-size:13px;opacity:0.8;margin-top:3px;}
+.color-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:16px;}
+.cswatch{width:44px;height:44px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.1s;margin:0 auto;}
+.cswatch:active{transform:scale(0.9);}
+.fab{position:fixed;bottom:calc(68px + env(safe-area-inset-bottom,0px));right:calc(50% - 195px);width:52px;height:52px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:26px;color:white;cursor:pointer;box-shadow:0 4px 20px rgba(92,63,163,0.4);z-index:50;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:flex;align-items:flex-end;justify-content:center;}
+.modal-overlay.hidden{display:none;}
+.modal-box{background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px;padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));width:100%;max-width:430px;max-height:90dvh;overflow-y:auto;animation:slideUp 0.25s ease;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.modal-title{font-size:18px;font-weight:800;}
+.modal-close{font-size:20px;cursor:pointer;color:var(--text2);width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--surface2);}
+.inp{width:100%;padding:12px 14px;border-radius:var(--rs);border:1.5px solid var(--border);font-family:'Nunito',sans-serif;font-size:14px;color:var(--text);background:var(--bg);margin-bottom:10px;outline:none;}
+.inp:focus{border-color:var(--accent);}
+.inp-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.btn-p{width:100%;padding:14px;border-radius:var(--rs);background:var(--accent);color:white;font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;border:none;cursor:pointer;margin-top:6px;}
+.btn-s{width:100%;padding:12px;border-radius:var(--rs);background:var(--surface2);color:var(--text2);font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;border:none;cursor:pointer;margin-top:8px;}
+.btn-d{width:100%;padding:12px;border-radius:var(--rs);background:#FCEBEB;color:#A32D2D;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;border:none;cursor:pointer;margin-top:8px;}
+.toast{position:fixed;top:calc(env(safe-area-inset-top,0px) + 60px);left:50%;transform:translateX(-50%);background:#1A1612;color:white;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:700;z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+.empty{text-align:center;padding:48px 20px;color:var(--text3);}.empty i{font-size:48px;margin-bottom:12px;display:block;}.empty p{font-size:14px;line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="status-bar">
+    <span id="clock">9:41</span>
+    <span style="display:flex;gap:5px;font-size:15px;"><i class="ti ti-wifi"></i><i class="ti ti-battery-2"></i></span>
+  </div>
+  <div class="main" id="main">
+
+    <!-- HOME -->
+    <div class="screen active" id="screen-home">
+      <div class="pad">
+        <div class="header">
+          <div><div class="header-title">MusicFlow</div><div class="header-sub" id="today-label"></div></div>
+          <div class="btn-icon" onclick="showToast('Khong co thong bao moi')"><i class="ti ti-bell" style="font-size:18px;color:var(--accent)"></i></div>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card s1"><div class="num" id="st-total">0</div><div class="lbl">Hoc sinh</div></div>
+          <div class="stat-card s2"><div class="num" id="st-today">0</div><div class="lbl">Hom nay</div></div>
+          <div class="stat-card s3"><div class="num" id="st-rate">-</div><div class="lbl">Chuyen can</div></div>
+        </div>
+        <div class="search-bar">
+          <i class="ti ti-search" style="color:var(--text3);font-size:18px;"></i>
+          <input type="text" placeholder="Tim hoc sinh..." id="search-inp" oninput="renderHome()"/>
+        </div>
+        <div class="tabs">
+          <div class="tab active" onclick="setTab('all',this)">Tat ca</div>
+          <div class="tab" onclick="setTab('active',this)">Dang hoc</div>
+          <div class="tab" onclick="setTab('pause',this)">Tam nghi</div>
+        </div>
+        <div class="slabel">Hoc sinh</div>
+        <div id="student-list"></div>
+      </div>
+    </div>
+
+    <!-- DETAIL -->
+    <div class="screen" id="screen-detail">
+      <div class="pad">
+        <div class="det-header">
+          <div class="back-btn" onclick="goScreen('home')"><i class="ti ti-arrow-left" style="font-size:18px"></i> Danh sach</div>
+          <div class="det-avatar" id="det-av"></div>
+          <div class="det-name" id="det-name"></div>
+          <div class="det-sub" id="det-sub"></div>
+          <div class="chips" id="det-chips"></div>
+        </div>
+        <div class="slabel">Thong tin</div>
+        <div class="info-card">
+          <div class="info-row"><span class="info-label"><i class="ti ti-phone"></i>Phu huynh</span><span class="info-value" id="det-phone"></span></div>
+          <div class="info-row"><span class="info-label"><i class="ti ti-calendar"></i>Lich hoc</span><span class="info-value" id="det-sched"></span></div>
+          <div class="info-row"><span class="info-label"><i class="ti ti-coin"></i>Hoc phi</span><span class="info-value" id="det-fee"></span></div>
+          <div class="info-row"><span class="info-label"><i class="ti ti-calendar-check"></i>Bat dau</span><span class="info-value" id="det-start"></span></div>
+          <div class="info-row"><span class="info-label"><i class="ti ti-notes"></i>Ghi chu</span><span class="info-value" id="det-note" style="color:var(--text2);font-weight:600;"></span></div>
+        </div>
+        <div class="slabel">Tien do hoc</div>
+        <div class="info-card" style="padding:16px;">
+          <div class="prog-row"><div class="prog-label"><span>Ky thuat</span><span id="pr1-v"></span></div><div class="prog-bar"><div class="prog-fill fp" id="pr1"></div></div></div>
+          <div class="prog-row"><div class="prog-label"><span>Doc nhac</span><span id="pr2-v"></span></div><div class="prog-bar"><div class="prog-fill fo" id="pr2"></div></div></div>
+          <div class="prog-row"><div class="prog-label"><span>Bieu dien</span><span id="pr3-v"></span></div><div class="prog-bar"><div class="prog-fill fg" id="pr3"></div></div></div>
+          <div class="prog-row" style="margin-bottom:0"><div class="prog-label"><span>Nhac ly</span><span id="pr4-v"></span></div><div class="prog-bar"><div class="prog-fill fb" id="pr4"></div></div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:0 20px 10px;">
+          <div class="slabel" style="margin:0">Buoi hoc</div>
+          <span onclick="openLessonModal()" style="font-size:12px;font-weight:700;color:var(--accent);cursor:pointer;">+ Ghi buoi moi</span>
+        </div>
+        <div id="lesson-list"></div>
+        <div style="padding:0 20px;margin-top:12px;display:flex;gap:10px;">
+          <button class="btn-s" style="flex:1;" onclick="openEditStudent()"><i class="ti ti-edit" style="font-size:14px;vertical-align:-2px"></i> Chinh sua</button>
+          <button class="btn-d" style="flex:1;" onclick="deleteStudent()"><i class="ti ti-trash" style="font-size:14px;vertical-align:-2px"></i> Xoa</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div class="screen" id="screen-schedule">
+      <div class="pad">
+        <div class="header"><div><div class="header-title">Lich day</div><div class="header-sub" id="week-sub"></div></div></div>
+        <div class="week-row" id="week-row"></div>
+        <div class="slabel" id="sched-label">Hom nay</div>
+        <div id="sched-list"></div>
+      </div>
+    </div>
+
+    <!-- FINANCE -->
+    <div class="screen" id="screen-finance">
+      <div class="pad">
+        <div class="header"><div><div class="header-title">Hoc phi</div><div class="header-sub" id="fin-month"></div></div></div>
+        <div class="stats-row-2">
+          <div class="stat-card s3" style="text-align:left;padding:16px;"><div class="num" style="font-size:16px;" id="fin-paid">0</div><div class="lbl">Da thu</div></div>
+          <div class="stat-card s2" style="text-align:left;padding:16px;"><div class="num" style="font-size:16px;" id="fin-unpaid">0</div><div class="lbl">Chua thu</div></div>
+        </div>
+        <div class="slabel">Trang thai hoc phi <span style="font-size:10px;color:var(--accent);font-weight:700;">(bam de doi trang thai)</span></div>
+        <div class="info-card" id="fin-list"></div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="screen" id="screen-settings">
+      <div class="pad">
+        <div class="header"><div><div class="header-title">Cai dat</div><div class="header-sub">Tuy chinh ung dung</div></div></div>
+        <div class="profile-card" onclick="openProfileModal()">
+          <div class="profile-avatar" id="prof-av">GV</div>
+          <div style="flex:1;">
+            <div class="profile-name" id="prof-name">Giao vien</div>
+            <div class="profile-sub" id="prof-sub">Bam de cap nhat thong tin</div>
+          </div>
+          <i class="ti ti-chevron-right" style="font-size:20px;opacity:0.7;"></i>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">Giao dien</div>
+          <div class="settings-card">
+            <div class="settings-row" onclick="openColorModal()">
+              <div class="si si-p"><i class="ti ti-palette"></i></div>
+              <div class="settings-text"><div class="settings-name">Mau chu dao</div><div class="settings-desc">Tuy chinh mau sac ung dung</div></div>
+              <div style="width:20px;height:20px;border-radius:50%;background:var(--accent);margin-right:8px;" id="color-dot"></div>
+              <i class="ti ti-chevron-right" style="color:var(--text3);font-size:16px;"></i>
+            </div>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">Du lieu</div>
+          <div class="settings-card">
+            <div class="settings-row" onclick="exportCSV()">
+              <div class="si si-g"><i class="ti ti-file-spreadsheet"></i></div>
+              <div class="settings-text"><div class="settings-name">Xuat danh sach hoc sinh</div><div class="settings-desc">Tai file CSV mo bang Excel</div></div>
+              <i class="ti ti-chevron-right" style="color:var(--text3);font-size:16px;"></i>
+            </div>
+            <div class="settings-row" onclick="backupData()">
+              <div class="si si-b"><i class="ti ti-cloud-upload"></i></div>
+              <div class="settings-text"><div class="settings-name">Sao luu du lieu</div><div class="settings-desc">Tai file backup JSON</div></div>
+              <i class="ti ti-chevron-right" style="color:var(--text3);font-size:16px;"></i>
+            </div>
+            <div class="settings-row" onclick="document.getElementById('restore-inp').click()">
+              <div class="si si-o"><i class="ti ti-cloud-download"></i></div>
+              <div class="settings-text"><div class="settings-name">Khoi phuc du lieu</div><div class="settings-desc">Nap lai tu file backup</div></div>
+              <i class="ti ti-chevron-right" style="color:var(--text3);font-size:16px;"></i>
+            </div>
+            <input type="file" id="restore-inp" accept=".json" style="display:none" onchange="restoreData(event)">
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">Khac</div>
+          <div class="settings-card">
+            <div class="settings-row" onclick="resetAll()">
+              <div class="si si-r"><i class="ti ti-trash"></i></div>
+              <div class="settings-text"><div class="settings-name">Xoa toan bo du lieu</div><div class="settings-desc">Khong the khoi phuc sau khi xoa</div></div>
+              <i class="ti ti-chevron-right" style="color:var(--text3);font-size:16px;"></i>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center;padding:20px;color:var(--text3);font-size:12px;">MusicFlow v2.0</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="nav-bar">
+    <div class="nav-item active" id="nav-home" onclick="goScreen('home')"><i class="ti ti-users"></i>Hoc sinh</div>
+    <div class="nav-item" id="nav-schedule" onclick="goScreen('schedule')"><i class="ti ti-calendar"></i>Lich day</div>
+    <div class="nav-item" id="nav-finance" onclick="goScreen('finance')"><i class="ti ti-coin"></i>Hoc phi</div>
+    <div class="nav-item" id="nav-settings" onclick="goScreen('settings')"><i class="ti ti-settings"></i>Cai dat</div>
+  </div>
+  <div class="fab" id="fab" onclick="openAddStudent()"><i class="ti ti-plus"></i></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- MODAL Student -->
+<div class="modal-overlay hidden" id="modal-student">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-student-title">Them hoc sinh</div>
+      <div class="modal-close" onclick="closeModal('modal-student')"><i class="ti ti-x"></i></div>
+    </div>
+    <input class="inp" id="s-name" placeholder="Ho va ten *"/>
+    <input class="inp" id="s-phone" placeholder="SDT phu huynh" type="tel"/>
+    <div class="inp-row">
+      <select class="inp" id="s-instrument">
+        <option value="">Nhac cu *</option>
+        <option>Piano</option><option>Violin</option><option>Guitar</option>
+        <option>Trong</option><option>Sao</option><option>Dan tranh</option><option>Ukulele</option><option>Khac</option>
+      </select>
+      <select class="inp" id="s-level">
+        <option value="">Trinh do</option>
+        <option>So cap</option><option>Trung cap</option><option>Nang cao</option>
+      </select>
+    </div>
+    <input class="inp" id="s-sched" placeholder="Lich hoc (vd: T2, T4, T6 - 17:00)"/>
+    <input class="inp" id="s-fee" placeholder="Hoc phi/buoi (vd: 300000)" type="number"/>
+    <input class="inp" id="s-start" type="date"/>
+    <select class="inp" id="s-status"><option value="active">Dang hoc</option><option value="pause">Tam nghi</option></select>
+    <input class="inp" id="s-note" placeholder="Ghi chu (tuy chon)"/>
+    <button class="btn-p" id="btn-save-student" onclick="saveStudent()">Luu hoc sinh</button>
+    <button class="btn-s" onclick="closeModal('modal-student')">Huy</button>
+  </div>
+</div>
+
+<!-- MODAL Lesson -->
+<div class="modal-overlay hidden" id="modal-lesson">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Ghi buoi hoc</div>
+      <div class="modal-close" onclick="closeModal('modal-lesson')"><i class="ti ti-x"></i></div>
+    </div>
+    <input class="inp" id="l-date" type="date"/>
+    <input class="inp" id="l-title" placeholder="Noi dung (vd: Bai Sonata No.1)"/>
+    <select class="inp" id="l-status"><option value="done">Da hoc</option><option value="miss">Vang mat</option><option value="upcoming">Sap toi</option></select>
+    <button class="btn-p" onclick="saveLesson()">Luu</button>
+    <button class="btn-s" onclick="closeModal('modal-lesson')">Huy</button>
+  </div>
+</div>
+
+<!-- MODAL Profile -->
+<div class="modal-overlay hidden" id="modal-profile">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Thong tin giao vien</div>
+      <div class="modal-close" onclick="closeModal('modal-profile')"><i class="ti ti-x"></i></div>
+    </div>
+    <input class="inp" id="p-name" placeholder="Ho va ten giao vien"/>
+    <input class="inp" id="p-phone" placeholder="So dien thoai" type="tel"/>
+    <input class="inp" id="p-studio" placeholder="Ten phong nhac / studio"/>
+    <input class="inp" id="p-address" placeholder="Dia chi"/>
+    <button class="btn-p" onclick="saveProfile()">Luu thong tin</button>
+    <button class="btn-s" onclick="closeModal('modal-profile')">Huy</button>
+  </div>
+</div>
+
+<!-- MODAL Color -->
+<div class="modal-overlay hidden" id="modal-color">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Chon mau chu dao</div>
+      <div class="modal-close" onclick="closeModal('modal-color')"><i class="ti ti-x"></i></div>
+    </div>
+    <div class="color-grid" id="color-grid"></div>
+    <button class="btn-s" onclick="closeModal('modal-color')">Dong</button>
+  </div>
+</div>
+
+<script>
+const AVCOLORS=['av0','av1','av2','av3','av4','av5'];
+const SLOT_CLS=['','so','sg','sb','','so'];
+const DAYS_SHORT=['CN','T2','T3','T4','T5','T6','T7'];
+const DAYS_VN=['Chu nhat','Thu hai','Thu ba','Thu tu','Thu nam','Thu sau','Thu bay'];
+const ACCENT_OPTIONS=['#5C3FA3','#E8572A','#1D9E75','#185FA5','#B5367A','#0E7490','#6D28D9','#B45309','#374151','#7C3D12'];
+
+function lsGet(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+let students=lsGet('mf2_students',[]);
+let profile=lsGet('mf2_profile',{name:'Giao vien',phone:'',studio:'',address:''});
+let accentColor=lsGet('mf2_accent','#5C3FA3');
+let currentTab='all';
+let editingId=null;
+let detailId=null;
+
+function applyAccent(c){
+  accentColor=c;lsSet('mf2_accent',c);
+  document.documentElement.style.setProperty('--accent',c);
+  const hex=c.replace('#','');
+  const r=parseInt(hex.substr(0,2),16),g=parseInt(hex.substr(2,2),16),b=parseInt(hex.substr(4,2),16);
+  document.documentElement.style.setProperty('--accent-light','rgba('+r+','+g+','+b+',0.12)');
+  const dot=document.getElementById('color-dot');
+  if(dot)dot.style.background=c;
+}
+applyAccent(accentColor);
+
+function updateClock(){const n=new Date();document.getElementById('clock').textContent=n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');}
+updateClock();setInterval(updateClock,15000);
+
+const now=new Date();
+document.getElementById('today-label').textContent=DAYS_VN[now.getDay()]+', '+now.getDate()+' thang '+(now.getMonth()+1);
+document.getElementById('fin-month').textContent='Thang '+(now.getMonth()+1)+'/'+now.getFullYear();
+
+function goScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const sc=document.getElementById('screen-'+name);
+  if(sc)sc.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const ni=document.getElementById('nav-'+name);
+  if(ni)ni.classList.add('active');
+  const fab=document.getElementById('fab');
+  if(fab)fab.style.display=(name==='home')?'flex':'none';
+  document.getElementById('main').scrollTop=0;
+  if(name==='home')renderHome();
+  if(name==='schedule')renderSchedule();
+  if(name==='finance')renderFinance();
+  if(name==='settings')renderSettings();
+}
+
+let toastT=null;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function initials(name){
+  const p=(name||'GV').trim().split(' ').filter(Boolean);
+  return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():(name||'GV').slice(0,2).toUpperCase();
+}
+function fmtMoney(n){return n?Number(n).toLocaleString('vi-VN')+'d':'---';}
+function closeModal(id){document.getElementById(id).classList.add('hidden');}
+function openModal(id){document.getElementById(id).classList.remove('hidden');}
+
+function setTab(tab,el){
+  currentTab=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderHome();
+}
+
+function renderHome(){
+  const q=(document.getElementById('search-inp').value||'').toLowerCase();
+  let data=students;
+  if(currentTab==='active')data=data.filter(s=>s.status!=='pause');
+  if(currentTab==='pause')data=data.filter(s=>s.status==='pause');
+  if(q)data=data.filter(s=>(s.name||'').toLowerCase().includes(q)||(s.instrument||'').toLowerCase().includes(q));
+  const todayCode=DAYS_SHORT[new Date().getDay()];
+  document.getElementById('st-total').textContent=students.length;
+  document.getElementById('st-today').textContent=students.filter(s=>s.schedule&&s.schedule.includes(todayCode)&&s.status!=='pause').length;
+  const lStats=students.reduce((a,s)=>{
+    (s.lessons||[]).forEach(l=>{if(l.status==='done')a.done++;if(l.status!=='upcoming')a.all++;});
+    return a;
+  },{done:0,all:0});
+  document.getElementById('st-rate').textContent=lStats.all>0?Math.round(lStats.done/lStats.all*100)+'%':'---';
+  const list=document.getElementById('student-list');
+  if(data.length===0){
+    list.innerHTML='<div class="empty"><i class="ti ti-music"></i><p>Chua co hoc sinh nao.<br>Bam <strong style="color:var(--accent)">+</strong> de them!</p></div>';return;
+  }
+  list.innerHTML=data.map(s=>{
+    const hasToday=s.schedule&&s.schedule.includes(todayCode)&&s.status!=='pause';
+    const tm=s.schedule&&s.schedule.match(/(\d{1,2}:\d{2})/);
+    return '<div class="student-card" onclick="openDetail(\''+s.id+'\')">'
+      +'<div class="avatar '+s.color+'">'+initials(s.name)+'</div>'
+      +'<div class="student-info">'
+      +'<div class="student-name">'+s.name+'</div>'
+      +'<div class="student-meta">'+(s.instrument||'')+(s.level?' - '+s.level:'')+'</div>'
+      +(hasToday?'<span class="badge bp">Hom nay '+(tm?tm[1]:'')+'</span>':'')
+      +(s.status==='pause'?'<span class="badge br">Tam nghi</span>':'')
+      +'</div>'
+      +'<div style="text-align:right;flex-shrink:0;">'
+      +'<div style="font-size:13px;font-weight:800;color:var(--accent);">'+(s.fee?Number(s.fee).toLocaleString('vi-VN')+'d':'---')+'</div>'
+      +'<div style="font-size:11px;color:var(--text3);">/ buoi</div>'
+      +'</div></div>';
+  }).join('');
+}
+
+function openAddStudent(){
+  editingId=null;
+  document.getElementById('modal-student-title').textContent='Them hoc sinh';
+  document.getElementById('btn-save-student').textContent='Them hoc sinh';
+  ['s-name','s-phone','s-sched','s-fee','s-note'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('s-instrument').value='';
+  document.getElementById('s-level').value='';
+  document.getElementById('s-status').value='active';
+  document.getElementById('s-start').value=new Date().toISOString().split('T')[0];
+  openModal('modal-student');
+}
+
+function openEditStudent(){
+  const s=students.find(x=>x.id===detailId);if(!s)return;
+  editingId=s.id;
+  document.getElementById('modal-student-title').textContent='Chinh sua hoc sinh';
+  document.getElementById('btn-save-student').textContent='Luu thay doi';
+  document.getElementById('s-name').value=s.name||'';
+  document.getElementById('s-phone').value=s.phone||'';
+  document.getElementById('s-instrument').value=s.instrument||'';
+  document.getElementById('s-level').value=s.level||'';
+  document.getElementById('s-sched').value=s.schedule||'';
+  document.getElementById('s-fee').value=s.fee||'';
+  document.getElementById('s-start').value=s.start||'';
+  document.getElementById('s-status').value=s.status||'active';
+  document.getElementById('s-note').value=s.note||'';
+  openModal('modal-student');
+}
+
+function saveStudent(){
+  const name=document.getElementById('s-name').value.trim();
+  const instrument=document.getElementById('s-instrument').value;
+  if(!name){showToast('Vui long nhap ho ten!');return;}
+  if(!instrument){showToast('Vui long chon nhac cu!');return;}
+  if(editingId){
+    const s=students.find(x=>x.id===editingId);
+    if(s){s.name=name;s.phone=document.getElementById('s-phone').value;s.instrument=instrument;s.level=document.getElementById('s-level').value;s.schedule=document.getElementById('s-sched').value;s.fee=document.getElementById('s-fee').value;s.start=document.getElementById('s-start').value;s.status=document.getElementById('s-status').value;s.note=document.getElementById('s-note').value;}
+    lsSet('mf2_students',students);closeModal('modal-student');showToast('Da cap nhat!');openDetail(editingId);
+  } else {
+    students.push({id:'s'+Date.now(),name,phone:document.getElementById('s-phone').value,instrument,level:document.getElementById('s-level').value,schedule:document.getElementById('s-sched').value,fee:document.getElementById('s-fee').value,start:document.getElementById('s-start').value,status:document.getElementById('s-status').value,note:document.getElementById('s-note').value,color:AVCOLORS[students.length%AVCOLORS.length],progress:[60,50,40,70],lessons:[],paid:false});
+    lsSet('mf2_students',students);closeModal('modal-student');renderHome();showToast('Da them '+name+'!');
+  }
+}
+
+function deleteStudent(){
+  const s=students.find(x=>x.id===detailId);if(!s)return;
+  if(!confirm('Xoa hoc sinh '+s.name+'?'))return;
+  students=students.filter(x=>x.id!==detailId);
+  lsSet('mf2_students',students);showToast('Da xoa '+s.name);goScreen('home');
+}
+
+function openDetail(id){
+  detailId=id;
+  const s=students.find(x=>x.id===id);if(!s)return;
+  document.getElementById('det-av').textContent=initials(s.name);
+  document.getElementById('det-name').textContent=s.name;
+  document.getElementById('det-sub').textContent=(s.instrument||'')+(s.level?' - '+s.level:'');
+  document.getElementById('det-chips').innerHTML='<div class="chip">'+(s.instrument||'Nhac cu')+'</div>'+(s.schedule?'<div class="chip">'+s.schedule.split('-')[0].trim()+'</div>':'')+'<div class="chip">'+(s.status==='pause'?'Tam nghi':'Dang hoc')+'</div>';
+  document.getElementById('det-phone').textContent=s.phone||'Chua co';
+  document.getElementById('det-sched').textContent=s.schedule||'Chua co';
+  document.getElementById('det-fee').textContent=s.fee?Number(s.fee).toLocaleString('vi-VN')+'d / buoi':'Chua co';
+  document.getElementById('det-start').textContent=s.start||'Chua co';
+  document.getElementById('det-note').textContent=s.note||'Khong co';
+  const p=s.progress||[60,50,40,70];
+  ['pr1','pr2','pr3','pr4'].forEach((pid,i)=>{document.getElementById(pid).style.width=p[i]+'%';document.getElementById(pid+'-v').textContent=p[i]+'%';});
+  renderLessons(s);goScreen('detail');
+}
+
+function renderLessons(s){
+  const list=document.getElementById('lesson-list');
+  if(!s.lessons||s.lessons.length===0){list.innerHTML='<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px;">Chua co buoi hoc nao.</div>';return;}
+  list.innerHTML=[...s.lessons].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,10).map(l=>{
+    const dc=l.status==='done'?'ld':l.status==='miss'?'lm':'lu';
+    const ic=l.status==='done'?'ti-check':l.status==='miss'?'ti-x':'ti-clock';
+    const col=l.status==='done'?'var(--green)':l.status==='miss'?'var(--orange)':'var(--accent)';
+    return '<div class="lesson-item"><div class="ldot '+dc+'"></div><div style="flex:1;"><div style="font-size:13px;font-weight:700;">'+(l.title||'Buoi hoc')+'</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">'+(l.date||'')+'</div></div><i class="ti '+ic+'" style="color:'+col+';font-size:16px;"></i></div>';
+  }).join('');
+}
+
+function openLessonModal(){
+  document.getElementById('l-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('l-title').value='';
+  document.getElementById('l-status').value='done';
+  openModal('modal-lesson');
+}
+
+function saveLesson(){
+  const s=students.find(x=>x.id===detailId);if(!s)return;
+  if(!s.lessons)s.lessons=[];
+  s.lessons.push({date:document.getElementById('l-date').value,title:document.getElementById('l-title').value||'Buoi hoc',status:document.getElementById('l-status').value});
+  lsSet('mf2_students',students);closeModal('modal-lesson');renderLessons(s);showToast('Da ghi buoi hoc!');
+}
+
+function renderSchedule(){
+  const d=new Date();
+  const row=document.getElementById('week-row');
+  row.innerHTML='';
+  for(let i=0;i<7;i++){
+    const dd=new Date(d);dd.setDate(d.getDate()-d.getDay()+i);
+    const isToday=dd.toDateString()===d.toDateString();
+    row.innerHTML+='<div class="day-btn'+(isToday?' today':'')+'"><span class="day-name">'+DAYS_SHORT[i]+'</span><span class="day-num">'+dd.getDate()+'</span></div>';
+  }
+  const tc=DAYS_SHORT[d.getDay()];
+  const ts=students.filter(s=>s.schedule&&s.schedule.includes(tc)&&s.status!=='pause');
+  document.getElementById('sched-label').textContent='Hom nay - '+ts.length+' buoi';
+  document.getElementById('week-sub').textContent='Tuan nay';
+  const sl=document.getElementById('sched-list');
+  if(ts.length===0){sl.innerHTML='<div class="empty"><i class="ti ti-calendar-off"></i><p>Khong co buoi hoc hom nay.</p></div>';return;}
+  sl.innerHTML=ts.map((s,i)=>{
+    const tm=s.schedule&&s.schedule.match(/(\d{1,2}:\d{2})/);
+    return '<div class="slot '+SLOT_CLS[i%SLOT_CLS.length]+'" onclick="openDetail(\''+s.id+'\')">'
+      +'<div class="slot-time">'+(tm?tm[1]:'--:--')+'</div>'
+      +'<div class="slot-info"><div class="slot-name">'+s.name+'</div><div class="slot-sub">'+(s.instrument||'')+(s.level?' - '+s.level:'')+' - 60 phut</div></div>'
+      +'<span class="badge bp">'+(s.level||'Hoc sinh')+'</span>'
+      +'</div>';
+  }).join('');
+}
+
+function renderFinance(){
+  const paid=students.filter(s=>s.paid&&s.fee).reduce((a,s)=>a+Number(s.fee)*4,0);
+  const unpaid=students.filter(s=>!s.paid&&s.fee).reduce((a,s)=>a+Number(s.fee)*4,0);
+  document.getElementById('fin-paid').textContent=paid?paid.toLocaleString('vi-VN')+'d':'0d';
+  document.getElementById('fin-unpaid').textContent=unpaid?unpaid.toLocaleString('vi-VN')+'d':'0d';
+  const fl=document.getElementById('fin-list');
+  if(students.length===0){fl.innerHTML='<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px;">Chua co hoc sinh.</div>';return;}
+  fl.innerHTML=students.map(s=>'<div class="info-row" style="cursor:pointer;" onclick="togglePaid(\''+s.id+'\')"><div style="display:flex;align-items:center;gap:10px;"><div class="avatar '+s.color+'" style="width:32px;height:32px;font-size:11px;">'+initials(s.name)+'</div><span style="font-size:14px;font-weight:700;">'+s.name+'</span></div><span style="font-size:13px;font-weight:700;color:'+(s.paid?'var(--green)':'var(--orange)')+';">'+(s.paid?'Da thu':'Chua thu')+'</span></div>').join('');
+}
+
+function togglePaid(id){
+  const s=students.find(x=>x.id===id);if(!s)return;
+  s.paid=!s.paid;lsSet('mf2_students',students);renderFinance();
+  showToast(s.paid?'Da danh dau da thu':'Da danh dau chua thu');
+}
+
+function renderSettings(){
+  document.getElementById('prof-name').textContent=profile.name||'Giao vien';
+  document.getElementById('prof-sub').textContent=profile.studio||'Bam de cap nhat thong tin';
+  document.getElementById('prof-av').textContent=initials(profile.name||'GV');
+}
+
+function openProfileModal(){
+  document.getElementById('p-name').value=profile.name||'';
+  document.getElementById('p-phone').value=profile.phone||'';
+  document.getElementById('p-studio').value=profile.studio||'';
+  document.getElementById('p-address').value=profile.address||'';
+  openModal('modal-profile');
+}
+
+function saveProfile(){
+  profile={name:document.getElementById('p-name').value,phone:document.getElementById('p-phone').value,studio:document.getElementById('p-studio').value,address:document.getElementById('p-address').value};
+  lsSet('mf2_profile',profile);closeModal('modal-profile');renderSettings();showToast('Da luu thong tin!');
+}
+
+function openColorModal(){
+  document.getElementById('color-grid').innerHTML=ACCENT_OPTIONS.map(c=>'<div style="display:flex;justify-content:center;"><div class="cswatch" style="background:'+c+';'+(accentColor===c?'outline:3px solid #333;outline-offset:2px;':'')+'" onclick="applyAccent(\''+c+'\');closeModal(\'modal-color\');showToast(\'Da doi mau!\');renderSettings();document.getElementById(\'color-dot\').style.background=\''+c+'\';"></div></div>').join('');
+  openModal('modal-color');
+}
+
+function exportCSV(){
+  if(students.length===0){showToast('Chua co hoc sinh!');return;}
+  const rows=[['Ten','Nhac cu','Trinh do','Lich hoc','Hoc phi','SDT PH','Bat dau','Trang thai']];
+  students.forEach(s=>rows.push([s.name,s.instrument,s.level,s.schedule,s.fee,s.phone,s.start,s.status==='pause'?'Tam nghi':'Dang hoc']));
+  const csv=rows.map(r=>r.map(v=>'"'+(v||'')+'"').join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='musicflow_hocsinh.csv';a.click();
+  showToast('Da xuat file CSV!');
+}
+
+function backupData(){
+  const blob=new Blob([JSON.stringify({students,profile,accentColor,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='musicflow_backup_'+new Date().toISOString().split('T')[0]+'.json';a.click();
+  showToast('Da sao luu!');
+}
+
+function restoreData(event){
+  const file=event.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.students)throw new Error('invalid');
+      if(!confirm('Khoi phuc se ghi de du lieu hien tai. Tiep tuc?'))return;
+      students=data.students;profile=data.profile||profile;
+      if(data.accentColor)applyAccent(data.accentColor);
+      lsSet('mf2_students',students);lsSet('mf2_profile',profile);
+      renderSettings();renderHome();showToast('Da khoi phuc du lieu!');
+    }catch(err){showToast('File khong hop le!');}
+  };
+  reader.readAsText(file);event.target.value='';
+}
+
+function resetAll(){
+  if(!confirm('Xoa TOAN BO du lieu? Khong the hoan tac!'))return;
+  if(!confirm('Xac nhan: Xoa tat ca?'))return;
+  students=[];profile={name:'Giao vien',phone:'',studio:'',address:''};
+  lsSet('mf2_students',students);lsSet('mf2_profile',profile);
+  renderSettings();renderHome();showToast('Da xoa toan bo du lieu');
+}
+
+// Init sample data
+if(students.length===0){
+  students=[
+    {id:'s1',name:'Tran Ngoc Anh',phone:'0901 234 567',instrument:'Violin',level:'Trung cap',schedule:'T2, T4, T6 - 17:00',fee:'350000',start:'2024-09-01',status:'active',color:'av0',progress:[75,60,45,80],lessons:[{date:'2025-05-23',title:'Sonata No.1',status:'done'},{date:'2025-05-19',title:'Nghi phep',status:'miss'}],paid:true},
+    {id:'s2',name:'Le Minh Khang',phone:'0912 345 678',instrument:'Piano',level:'So cap',schedule:'T3, T5 - 15:30',fee:'280000',start:'2025-01-10',status:'active',color:'av1',progress:[45,50,30,60],lessons:[{date:'2025-05-22',title:'Bai Twinkle Star',status:'done'}],paid:true},
+    {id:'s3',name:'Pham Thu Ha',phone:'0923 456 789',instrument:'Guitar',level:'Nang cao',schedule:'T4, T6 - 18:00',fee:'400000',start:'2024-03-15',status:'active',color:'av2',progress:[85,80,70,90],lessons:[],paid:true},
+    {id:'s4',name:'Nguyen Bao Long',phone:'0934 567 890',instrument:'Trong',level:'So cap',schedule:'T4 - 16:00',fee:'300000',start:'2025-03-01',status:'active',color:'av3',progress:[40,35,25,50],lessons:[],paid:false},
+    {id:'s5',name:'Vo Minh Lam',phone:'0945 678 901',instrument:'Piano',level:'Trung cap',schedule:'T5 - 14:00',fee:'350000',start:'2024-11-01',status:'active',color:'av4',progress:[65,70,55,75],lessons:[],paid:false},
+  ];
+  lsSet('mf2_students',students);
+}
+renderHome();
+</script>
+</body>
+</html>
